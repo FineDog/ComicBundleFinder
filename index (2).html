@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comic Bundle Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+    background-color: #f0e6c4;
+    background-image: radial-gradient(circle, #c8b98a 1px, transparent 1px);
+    background-size: 10px 10px;
+    font-family: 'Oswald', sans-serif;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+}
+
+.container { max-width: 960px; margin: 0 auto; }
+
+.panel {
+    background: #fffdf4;
+    border: 3px solid #1a1a1a;
+    box-shadow: 6px 6px 0 #1a1a1a;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ── Title ── */
+.title-panel {
+    background: #cc1f00;
+    text-align: center;
+    padding: 1.25rem 1.75rem 1rem;
+}
+.title-panel h1 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    color: #fffdf4;
+    letter-spacing: 4px;
+    text-shadow: 4px 4px 0 #1a1a1a;
+    line-height: 1;
+}
+.title-panel .tagline {
+    color: #ffe066;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+    font-weight: 400;
+}
+
+/* ── Caption box ── */
+.caption {
+    display: inline-block;
+    background: #ffe066;
+    border: 2px solid #1a1a1a;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+/* ── Form ── */
+label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    border: 2px solid #1a1a1a;
+    background: #fffdf4;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    resize: vertical;
+    color: #1a1a1a;
+}
+textarea:focus { outline: none; border-color: #003399; box-shadow: 2px 2px 0 #003399; }
+
+.hint { font-size: 0.78rem; color: #666; margin-top: 0.4rem; font-weight: 400; line-height: 1.5; }
+
+/* ── Button ── */
+.btn-search {
+    display: inline-block;
+    background: #003399;
+    color: #fffdf4;
+    border: 3px solid #1a1a1a;
+    box-shadow: 4px 4px 0 #1a1a1a;
+    font-family: 'Bangers', cursive;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    padding: 0.3rem 2.5rem 0.4rem;
+    cursor: pointer;
+    margin-top: 1.25rem;
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn-search:hover { background: #0044cc; }
+.btn-search:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 #1a1a1a; }
+.btn-search:disabled { background: #888; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0 #1a1a1a; }
+
+/* ── Status ── */
+#status { margin-top: 0.9rem; font-size: 0.88rem; min-height: 1.2rem; font-weight: 400; }
+.s-loading { color: #003399; }
+.s-error   { color: #cc1f00; font-weight: 600; }
+
+/* ── Stats row ── */
+.stats-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.stat-box {
+    flex: 1; min-width: 110px;
+    background: #ffe066;
+    border: 2px solid #1a1a1a;
+    padding: 0.6rem 1rem;
+    text-align: center;
+}
+.stat-number { font-family: 'Bangers', cursive; font-size: 2.2rem; color: #cc1f00; line-height: 1; }
+.stat-label  { font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #1a1a1a; margin-top: 2px; }
+
+/* ── Results header ── */
+.results-title {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: #cc1f00;
+    margin-bottom: 1.25rem;
+}
+
+/* ── Seller groups ── */
+.seller-group { margin-bottom: 1.75rem; }
+
+.seller-header {
+    background: #003399;
+    color: #fffdf4;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    border: 2px solid #1a1a1a;
+    border-bottom: none;
+}
+.seller-name { font-family: 'Bangers', cursive; font-size: 1.35rem; letter-spacing: 1px; }
+.bundle-badge {
+    background: #ffe066;
+    color: #1a1a1a;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border: 1.5px solid #1a1a1a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.bundle-badge.hot { background: #cc1f00; color: #fffdf4; border-color: #1a1a1a; }
+
+/* ── Listings table ── */
+.listings-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #1a1a1a;
+    font-size: 0.82rem;
+    table-layout: fixed;
+}
+.listings-table th {
+    background: #1a1a1a;
+    color: #fffdf4;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+.listings-table td {
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid #d4c9a8;
+    vertical-align: top;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+}
+.listings-table tr:last-child td { border-bottom: none; }
+.listings-table tr:nth-child(even) td { background: #f8f3e3; }
+
+.col-issue   { width: 22%; }
+.col-title   { width: 38%; }
+.col-price   { width: 9%;  text-align: right; }
+.col-ship    { width: 11%; text-align: right; }
+.col-promo   { width: 11%; }
+.col-link    { width: 9%;  text-align: center; }
+
+.listing-link {
+    color: #cc1f00;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    font-size: 0.8rem;
+}
+.listing-link:hover { text-decoration: underline; }
+
+.promo-pill {
+    display: inline-block;
+    background: #cc1f00;
+    color: #fffdf4;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 1px 5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+/* ── Disclosure ── */
+.disclosure {
+    font-size: 0.72rem;
+    color: #888;
+    text-align: center;
+    font-weight: 400;
+    margin-top: 1.25rem;
+    line-height: 1.5;
+    border-top: 1px solid #d4c9a8;
+    padding-top: 0.75rem;
+}
+
+#results-section { display: none; }
+
+@media (max-width: 600px) {
+    .col-title { display: none; }
+    .col-issue { width: 40%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+    <div class="panel title-panel">
+        <h1>Comic Bundle Finder</h1>
+        <div class="tagline">Find sellers with multiple issues you need &mdash; save on shipping</div>
+    </div>
+
+    <div class="panel">
+        <div class="caption">Enter your missing issues</div>
+        <label for="issue-input">Paste your list below &mdash; one issue per line:</label>
+        <textarea id="issue-input" placeholder="Batgirl: Year One #2&#10;Black Widow #10&#10;Black Widow #11 (2014)"></textarea>
+        <div class="hint">
+            Format: Series Name #Number &mdash; e.g. "Amazing Spider-Man #300" or "Black Widow #10 (2014)"<br>
+            Searches eBay for listings under $10. Results are ranked by how many of your issues each seller carries.
+        </div>
+        <button class="btn-search" id="search-btn" onclick="runSearch()">Find Bundles!</button>
+        <div id="progress-wrap" style="display:none;margin-top:1.25rem;">
+            <div id="progress-msg" style="font-size:0.82rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem;color:#003399;"></div>
+            <div style="border:2px solid #1a1a1a;background:#f0e6c4;height:24px;position:relative;overflow:hidden;">
+                <div id="progress-bar" style="height:100%;width:0%;background:#cc1f00;transition:width 0.7s ease;"></div>
+                <div id="progress-pct" style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:0.85rem;letter-spacing:1px;color:#fffdf4;text-shadow:1px 1px 0 #1a1a1a;"></div>
+            </div>
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <div id="results-section">
+        <div class="panel">
+            <div class="results-title" id="results-title">Results</div>
+            <div class="stats-row" id="stats-row"></div>
+            <div id="results-content"></div>
+            <div class="disclosure" id="disclosure"></div>
+        </div>
+    </div>
+
+</div>
+<script>
+const BACKEND = "https://comic-bundle-finder-backend.onrender.com/search";
+
+const PROGRESS_STAGES = [
+    { pct: 5,  msg: "Waking up the server…" },
+    { pct: 12, msg: "Connecting to eBay…" },
+    { pct: 22, msg: "Authenticating…" },
+    { pct: 35, msg: "Searching eBay listings…" },
+    { pct: 50, msg: "Checking seller inventories…" },
+    { pct: 63, msg: "Filtering by price…" },
+    { pct: 74, msg: "Verifying issue numbers…" },
+    { pct: 83, msg: "Tallying bundle opportunities…" },
+    { pct: 90, msg: "Sorting by seller…" },
+    { pct: 94, msg: "Almost there…" },
+];
+
+let progressTimer = null;
+
+function startProgress() {
+    const wrap = document.getElementById("progress-wrap");
+    wrap.style.display = "block";
+    setBar(0, PROGRESS_STAGES[0].msg);
+    let i = 0;
+    progressTimer = setInterval(() => {
+        i++;
+        if (i < PROGRESS_STAGES.length) {
+            setBar(PROGRESS_STAGES[i].pct, PROGRESS_STAGES[i].msg);
+        } else {
+            clearInterval(progressTimer);
+        }
+    }, 6000);
+}
+
+function finishProgress(success) {
+    clearInterval(progressTimer);
+    if (success) {
+        setBar(100, "Done!");
+        setTimeout(() => { document.getElementById("progress-wrap").style.display = "none"; }, 800);
+    } else {
+        document.getElementById("progress-wrap").style.display = "none";
+    }
+}
+
+function setBar(pct, msg) {
+    document.getElementById("progress-bar").style.width = pct + "%";
+    document.getElementById("progress-pct").textContent = pct + "%";
+    document.getElementById("progress-msg").textContent = msg;
+}
+
+function runSearch() {
+    const raw = document.getElementById("issue-input").value.trim();
+    if (!raw) { setStatus("Please enter at least one issue.", "error"); return; }
+    const issues = raw.split("\n").map(l => l.trim()).filter(l => l);
+    if (!issues.length) { setStatus("No valid issues found.", "error"); return; }
+
+    const btn = document.getElementById("search-btn");
+    btn.disabled = true;
+    document.getElementById("results-section").style.display = "none";
+    setStatus("", "");
+    startProgress();
+
+    fetch(BACKEND, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ issues })
+    })
+    .then(r => r.ok ? r.json() : r.json().then(d => { throw new Error(d.detail || "Server error"); }))
+    .then(data => { btn.disabled = false; finishProgress(true); displayResults(data.results, issues.length); })
+    .catch(err => {
+        btn.disabled = false;
+        finishProgress(false);
+        setStatus("Error: " + err.message + ". If this is your first search in a while, the server may be waking up \u2014 wait 30 seconds and try again.", "error");
+    });
+}
+
+function setStatus(msg, type) {
+    const el = document.getElementById("status");
+    el.textContent = msg;
+    el.className = type === "error" ? "s-error" : type === "loading" ? "s-loading" : "";
+}
+
+function displayResults(rows, issueCount) {
+    const section = document.getElementById("results-section");
+    const content = document.getElementById("results-content");
+    section.style.display = "block";
+
+    if (!rows || !rows.length) {
+        document.getElementById("results-title").textContent = "No Results Found";
+        document.getElementById("stats-row").innerHTML = "";
+        content.innerHTML = '<div class="no-results">No matching listings found. Try adjusting your issue names or checking spelling.</div>';
+        document.getElementById("disclosure").textContent = "";
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+    }
+
+    // Group by seller (rows already sorted by bundle_count desc)
+    const sellers = {};
+    for (const row of rows) {
+        if (!sellers[row.seller]) sellers[row.seller] = { bundle_count: row.bundle_count, listings: [] };
+        sellers[row.seller].listings.push(row);
+    }
+
+    const sellerCount = Object.keys(sellers).length;
+    const bundleSellers = Object.values(sellers).filter(s => s.bundle_count > 1).length;
+
+    // Remove single-issue sellers — we only care about bundles
+    for (const name of Object.keys(sellers)) {
+        if (sellers[name].bundle_count < 2) delete sellers[name];
+    }
+
+    if (!Object.keys(sellers).length) {
+        document.getElementById("results-title").textContent = "No Bundle Opportunities Found";
+        document.getElementById("stats-row").innerHTML = "";
+        content.innerHTML = '<div class="no-results">No single seller carries more than one of your issues. You may need to buy these separately, or try broadening your search.</div>';
+        document.getElementById("disclosure").textContent = "";
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+    }
+
+    document.getElementById("results-title").textContent = "Results \u2014 Sellers Ranked by Bundle Count";
+    document.getElementById("stats-row").innerHTML =
+        stat(issueCount, "Issues Searched") +
+        stat(sellerCount, "Total Sellers Found") +
+        stat(bundleSellers, "Bundle Opportunities");
+
+    let html = "";
+    for (const [name, data] of Object.entries(sellers)) {
+        const isBundle = data.bundle_count > 1;
+        const badgeClass = isBundle ? "bundle-badge hot" : "bundle-badge";
+        const badgeText = isBundle
+            ? data.bundle_count + " issues \u2014 bundle shipping!"
+            : "1 issue available";
+
+        html += `<div class="seller-group">
+        <div class="seller-header">
+            <span class="seller-name">${esc(name)}</span>
+            <span class="${badgeClass}">${esc(badgeText)}</span>
+        </div>
+        <table class="listings-table">
+            <thead><tr>
+                <th class="col-issue">Issue You Need</th>
+                <th class="col-title">Listing Title</th>
+                <th class="col-price">Price</th>
+                <th class="col-ship">Shipping</th>
+                <th class="col-promo">Promo</th>
+                <th class="col-link">Link</th>
+            </tr></thead><tbody>`;
+
+        for (const l of data.listings) {
+            const ship = l.shipping === "0.00" ? "FREE" : l.shipping === "unknown" ? "\u2014" : "$" + parseFloat(l.shipping).toFixed(2);
+            const promo = l.promotions ? `<span class="promo-pill">${esc(l.promotions.split("|")[0].trim())}</span>` : "";
+            html += `<tr>
+                <td class="col-issue">${esc(l.issue)}</td>
+                <td class="col-title">${esc(l.title)}</td>
+                <td class="col-price">$${parseFloat(l.price).toFixed(2)}</td>
+                <td class="col-ship">${ship}</td>
+                <td class="col-promo">${promo}</td>
+                <td class="col-link"><a class="listing-link" href="${esc(l.url)}" target="_blank" rel="noopener">View &rarr;</a></td>
+            </tr>`;
+        }
+        html += `</tbody></table></div>`;
+    }
+
+    content.innerHTML = html;
+    document.getElementById("disclosure").textContent = "Some links on this page may be affiliate links. A small commission may be earned if you purchase through these links, at no extra cost to you.";
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function stat(n, label) {
+    return `<div class="stat-box"><div class="stat-number">${n}</div><div class="stat-label">${label}</div></div>`;
+}
+
+function esc(s) {
+    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>
